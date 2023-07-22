@@ -55,7 +55,7 @@ namespace DALLESample.Pages
             }
 
             if (result.status == "failed")
-                return Content("failed!");
+                return Content($"failed! ErrorCode: {result.error.code}, ErrorMessage: {result.error.message}");
 
             return Redirect(result.result.data[0].url);
         }

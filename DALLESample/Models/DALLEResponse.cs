@@ -7,6 +7,8 @@
         public string id { get; set; }
         public Result result { get; set; }
         public string status { get; set; }
+        public Error error { get; set; }
+
     }
 
     public class Result
@@ -18,5 +20,10 @@
     public class Datum
     {
         public string url { get; set; }
+    }
+    public class Error
+    {
+        public string code { get; set; }
+        public string message { get; set; }
     }
 }
