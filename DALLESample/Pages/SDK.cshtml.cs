@@ -2,6 +2,8 @@ using Azure.AI.OpenAI;
 using Azure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using OpenAI.Chat;
+using OpenAI.Images;
 
 namespace DALLESample.Pages
 {
@@ -16,17 +18,39 @@ namespace DALLESample.Pages
             var apikey = "{your api key}";
             var apiUrl = "https://{your openai endpoint}.openai.azure.com";
 
-            var client = new OpenAIClient(new Uri(apiUrl), new AzureKeyCredential(apikey));
+            var client = new AzureOpenAIClient(
+                    new Uri(apiUrl), 
+                    new AzureKeyCredential(apikey))
+                .GetImageClient("dall-e-3");
+
             try
             {
-                var result = await client.GetImageGenerationsAsync(new ImageGenerationOptions()
+                ImageGenerationOptions options = new()
                 {
-                    Prompt = promptText,
-                    Size = ImageSize.Size1024x1024,
-                    ImageCount = 1
-                });
+                    Quality = GeneratedImageQuality.High,
+                    Size = GeneratedImageSize.W1792xH1024,
+                    Style = GeneratedImageStyle.Natural,
+                    ResponseFormat = GeneratedImageFormat.Uri
+                };
 
-                return Redirect(result.Value.Data.First().Url.AbsoluteUri);
+                var image = client.GenerateImage(promptText, options);
+
+                return Redirect(image.Value.ImageUri.AbsoluteUri);
+
+                /*
+                ImageGenerationOptions options = new()
+                {
+                    Quality = GeneratedImageQuality.High,
+                    Size = GeneratedImageSize.W1792xH1024,
+                    Style = GeneratedImageStyle.Natural,
+                    ResponseFormat = GeneratedImageFormat.Bytes
+                };
+
+                GeneratedImage image = client.GenerateImage(promptText, options);
+                BinaryData bytes = image.ImageBytes;
+
+                return File(bytes.ToStream(), "image/png");
+                */
             }
             catch (Exception ex)
             {
